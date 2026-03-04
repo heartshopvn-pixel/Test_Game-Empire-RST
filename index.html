@@ -959,20 +959,20 @@
             slash2: createAudio('Attack_slash2.mp3', 0.8),
             attack_crit: createAudio('Attack_Crit.mp3', 0.8),
             arrow: createAudio('Arrow.mp3', 0.8),
-            gun_shoot: createAudio('Gun_Shoot.MP3', 0.8),
-            canon_shoot: createAudio('Canon_Shoot.MP3', 0.8),
-            explosion: createAudio('explosion.MP3', 0.8),
+            gun_shoot: createAudio('Gun_Shoot.mp3', 0.8),
+            canon_shoot: createAudio('Canon_Shoot.mp3', 0.8),
+            explosion: createAudio('explosion.mp3', 0.8),
 
             // Âm thanh kỹ năng và tử trận RTS
             buff: createAudio('buff.mp3', 0.8),
-            buff_enemy: createAudio('Buff_Enemy.MP3', 0.8),
-            death_ally: createAudio('DeathAlly.MP3', 0.8),
+            buff_enemy: createAudio('Buff_Enemy.mp3', 0.8),
+            death_ally: createAudio('DeathAlly.mp3', 0.8),
             death_enemy: createAudio('Death_Enemy.mp3', 0.8),
 
             victory: createAudio('Victory.mp3', 1.0),
             defeat: createAudio('Alert.mp3', 1.0),
-            voice_yes_mylord: createAudio('Voice_YesMyLord.MP3', 1.0),
-            voice_yes: createAudio('Voice_Yes.MP3', 1.0),
+            voice_yes_mylord: createAudio('Voice_YesMyLord.mp3', 1.0),
+            voice_yes: createAudio('Voice_Yes.mp3', 1.0),
 
             // Âm thanh hệ thống vương quốc
             error: createAudio('Error.mp3', 1.0),
@@ -2752,6 +2752,10 @@
                 survivors: { troops: {}, heroes: [] }
             };
 
+            // THÊM MỚI: Khởi tạo ma trận Fog of War (50x50 ô, mỗi ô 40px)
+            const cols = Math.ceil(rtsState.mapSize / 40);
+            rtsState.fow = Array(cols).fill(0).map(() => Array(cols).fill(0)); // 0: Chưa khám phá, 1: Đã khám phá, 2: Đang nhìn thấy
+
             // THÊM MỚI: Lấy cấu hình Biome và gắn vào state
             const biome = REGION_CONFIG[payload.region] || REGION_CONFIG['default'];
             rtsState.biome = biome;
@@ -3465,8 +3469,14 @@
                 // Tăng dung sai chạm để người dùng Mobile dễ bôi đen kẻ địch / lính
                 const tolerance = 30 / rtsState.camera.zoom;
                 
-                // Xem vị trí click có trúng Unit nào không
-                let clickedUnit = rtsState.units.find(u => Math.hypot(u.x - wEnd.x, u.y - wEnd.y) < (u.r * 1.5 + tolerance));
+                // Xem vị trí click có trúng Unit nào không (Chặn click trúng địch trong vùng sương mù)
+                let clickedUnit = rtsState.units.find(u => {
+                    let gridX = Math.floor(u.x / 40);
+                    let gridY = Math.floor(u.y / 40);
+                    let inVision = !rtsState.fow || (rtsState.fow[gridY] && rtsState.fow[gridY][gridX] === 2);
+                    if (u.isEnemy && !inVision) return false; // Không click được địch trong vùng tối
+                    return Math.hypot(u.x - wEnd.x, u.y - wEnd.y) < (u.r * 1.5 + tolerance);
+                });
                 
                 // Trí thông minh 1: Nếu click trúng QUÂN TA -> Chọn quân ta
                 if (clickedUnit && !clickedUnit.isEnemy) {
@@ -3526,7 +3536,14 @@
             const wPos = screenToWorld(canvasX, canvasY);
             const tolerance = 30 / rtsState.camera.zoom; // Tăng dung sai bắt lệnh tấn công
 
-            let clickedEnemy = rtsState.units.find(u => u.isEnemy && Math.hypot(u.x - wPos.x, u.y - wPos.y) < (u.r * 1.5 + tolerance));
+            let clickedEnemy = rtsState.units.find(u => {
+                if (!u.isEnemy) return false;
+                let gridX = Math.floor(u.x / 40);
+                let gridY = Math.floor(u.y / 40);
+                let inVision = !rtsState.fow || (rtsState.fow[gridY] && rtsState.fow[gridY][gridX] === 2);
+                if (!inVision) return false; // Kẻ địch trong sương mù không thể bị chọn làm mục tiêu tấn công
+                return Math.hypot(u.x - wPos.x, u.y - wPos.y) < (u.r * 1.5 + tolerance);
+            });
             let clickedNode = rtsState.nodes.find(n => Math.hypot(n.x - wPos.x, n.y - wPos.y) < (40 + tolerance));
 
             mySelected.forEach(u => {
@@ -3842,8 +3859,18 @@
                     
                     rtsState.units.forEach(other => {
                         if (u.isEnemy !== other.isEnemy && other.hp > 0) {
-                            let d = Math.hypot(other.x - u.x, other.y - u.y);
-                            if (d < minDist) { minDist = d; nearest = other; }
+                            // THÊM MỚI: Chặn quân ta tự động phát hiện và đánh địch đang nằm trong vùng tối (Fog of War)
+                            let canSee = true;
+                            if (!u.isEnemy) {
+                                let gridX = Math.max(0, Math.floor(other.x / 40));
+                                let gridY = Math.max(0, Math.floor(other.y / 40));
+                                canSee = !rtsState.fow || (rtsState.fow[gridY] && rtsState.fow[gridY][gridX] === 2);
+                            }
+
+                            if (canSee) {
+                                let d = Math.hypot(other.x - u.x, other.y - u.y);
+                                if (d < minDist) { minDist = d; nearest = other; }
+                            }
                         }
                     });
 
@@ -4226,6 +4253,37 @@
                 ft.y -= 30 * dt; // Tốc độ bay lên
                 if (ft.life <= 0) rtsState.floatingTexts.splice(i, 1);
             }
+
+            // THÊM MỚI: CẬP NHẬT TẦM NHÌN FOG OF WAR
+            if (rtsState.fow) {
+                const cols = rtsState.fow.length;
+                // 1. Reset các ô đang nhìn thấy (2) về trạng thái đã khám phá (1)
+                for (let r = 0; r < cols; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        if (rtsState.fow[r][c] === 2) rtsState.fow[r][c] = 1;
+                    }
+                }
+                
+                // 2. Cập nhật tầm nhìn từ Base và Quân ta
+                let visionEntities = rtsState.units.filter(u => !u.isEnemy && u.hp > 0);
+                if (rtsState.base && rtsState.base.hp > 0) visionEntities.push({...rtsState.base, isBase: true});
+                
+                visionEntities.forEach(u => {
+                    let radius = u.isBase ? 400 : (u.isHero ? 250 : 200); // Tầm nhìn: Căn cứ 400px, Tướng 250px, Lính 200px
+                    let gridRadius = Math.ceil(radius / 40);
+                    let cx = Math.floor(u.x / 40);
+                    let cy = Math.floor(u.y / 40);
+                    
+                    for(let r = Math.max(0, cy - gridRadius); r <= Math.min(cols-1, cy + gridRadius); r++) {
+                        for(let c = Math.max(0, cx - gridRadius); c <= Math.min(cols-1, cx + gridRadius); c++) {
+                            // Kiểm tra khoảng cách hình tròn để tạo tầm nhìn Bo tròn
+                            if (Math.hypot(c*40 + 20 - u.x, r*40 + 20 - u.y) <= radius) {
+                                rtsState.fow[r][c] = 2; // Đánh dấu ô đang được nhìn thấy
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         function moveTo(u, tx, ty, dt) {
@@ -4548,14 +4606,24 @@
             // GOM NHÓM ĐỂ Y-SORTING (Giải quyết lỗi hình ảnh đè nhau)
             let drawables = [];
 
-            // Cập nhật: Đưa Cây cối trang trí vào vẽ
+            // Cập nhật: Đưa Cây cối trang trí vào vẽ (Có lọc qua Fog of War)
             rtsState.decorations.forEach(dec => {
-                drawables.push({ type: 'decor', obj: dec, y: dec.y });
+                let gridX = Math.max(0, Math.floor(dec.x / 40));
+                let gridY = Math.max(0, Math.floor(dec.y / 40));
+                let fowState = (rtsState.fow && rtsState.fow[gridY] && rtsState.fow[gridY][gridX] !== undefined) ? rtsState.fow[gridY][gridX] : 2;
+                if (fowState > 0) { // Đã khám phá thì mới hiển thị
+                    drawables.push({ type: 'decor', obj: dec, y: dec.y });
+                }
             });
 
-            // Đưa Mỏ tài nguyên vào danh sách chờ vẽ
+            // Đưa Mỏ tài nguyên vào danh sách chờ vẽ (Có lọc qua Fog of War)
             rtsState.nodes.forEach(n => {
-                if (n.amount > 0) drawables.push({ type: 'node', obj: n, y: n.y }); 
+                let gridX = Math.max(0, Math.floor(n.x / 40));
+                let gridY = Math.max(0, Math.floor(n.y / 40));
+                let fowState = (rtsState.fow && rtsState.fow[gridY] && rtsState.fow[gridY][gridX] !== undefined) ? rtsState.fow[gridY][gridX] : 2;
+                if (n.amount > 0 && fowState > 0) {
+                    drawables.push({ type: 'node', obj: n, y: n.y }); 
+                }
             });
 
             // Đưa Tường thành vào danh sách chờ vẽ
@@ -4564,9 +4632,16 @@
                 drawables.push({ type: 'base', obj: rtsState.base, y: rtsState.base.y + 30 }); 
             }
 
-            // Đưa tất cả Unit vào danh sách chờ vẽ
+            // Đưa tất cả Unit vào danh sách chờ vẽ (Lọc Kẻ địch nằm trong Sương mù)
             rtsState.units.forEach(u => {
-                drawables.push({ type: 'unit', obj: u, y: u.y }); 
+                let gridX = Math.max(0, Math.floor(u.x / 40));
+                let gridY = Math.max(0, Math.floor(u.y / 40));
+                let fowState = (rtsState.fow && rtsState.fow[gridY] && rtsState.fow[gridY][gridX] !== undefined) ? rtsState.fow[gridY][gridX] : 2;
+                
+                // Kẻ địch chỉ hiển thị khi quân ta đang có tầm nhìn (state = 2)
+                if (!u.isEnemy || fowState === 2) {
+                    drawables.push({ type: 'unit', obj: u, y: u.y }); 
+                }
             });
 
             // Tiết mục quan trọng: SẮP XẾP THEO TRỤC Y
@@ -4976,10 +5051,34 @@
             rtsCtx.fillText(ft.text, ft.x, ft.y);
         });
         
+        // THÊM MỚI: VẼ SƯƠNG MÙ CHIẾN TRANH (FOG OVERLAY)
+        if (rtsState.fow) {
+            const cols = rtsState.fow.length;
+            rtsCtx.fillStyle = '#000000'; // Màu đen cho vùng sương mù
+            
+            // Lọc chỉ vẽ sương mù trong phạm vi camera để tối ưu FPS
+            const startCol = Math.max(0, Math.floor(rtsState.camera.x / 40));
+            const endCol = Math.min(cols - 1, Math.floor((rtsState.camera.x + rtsCanvas.width / rtsState.camera.zoom) / 40));
+            const startRow = Math.max(0, Math.floor(rtsState.camera.y / 40));
+            const endRow = Math.min(cols - 1, Math.floor((rtsState.camera.y + rtsCanvas.height / rtsState.camera.zoom) / 40));
+
+            for (let r = startRow; r <= endRow; r++) {
+                for (let c = startCol; c <= endCol; c++) {
+                    const state = rtsState.fow[r][c];
+                    if (state === 0) { // Chưa khám phá
+                        rtsCtx.globalAlpha = 1.0;
+                        rtsCtx.fillRect(c * 40, r * 40, 41, 41); // Cộng thêm 1px chiều width/height để lấp kín viền
+                    } else if (state === 1) { // Đã khám phá nhưng không có tầm nhìn
+                        rtsCtx.globalAlpha = 0.55; 
+                        rtsCtx.fillRect(c * 40, r * 40, 41, 41);
+                    }
+                }
+            }
+            rtsCtx.globalAlpha = 1.0; // Khôi phục alpha mặc định
+        }
+
         // Khôi phục Context
         rtsCtx.restore();
-            // ĐÓNG KHỐI CAMERA
-            // ----------------------------------------------------
 
             // Cập nhật: Vẽ Minimap sau khi vẽ xong mọi thứ trên Canvas chính
             drawMinimap();
@@ -5029,10 +5128,36 @@
 
             // 4. Vẽ Units (Lính & Quái)
             rtsState.units.forEach(u => {
-                rtsMinimapCtx.fillStyle = u.isEnemy ? '#ef4444' : (u.isHero ? '#a855f7' : '#3b82f6');
-                const dotSize = Math.max(2, u.r * 2 * scale); // Đảm bảo chấm nhỏ nhất là 2px để có thể nhìn thấy
-                rtsMinimapCtx.fillRect((u.x * scale) - dotSize/2, (u.y * scale) - dotSize/2, dotSize, dotSize);
+                let gridX = Math.max(0, Math.floor(u.x / 40));
+                let gridY = Math.max(0, Math.floor(u.y / 40));
+                let fowState = (rtsState.fow && rtsState.fow[gridY] && rtsState.fow[gridY][gridX] !== undefined) ? rtsState.fow[gridY][gridX] : 2;
+
+                // Chỉ hiện địch trên minimap nếu nằm trong tầm nhìn (state = 2)
+                if (!u.isEnemy || fowState === 2) {
+                    rtsMinimapCtx.fillStyle = u.isEnemy ? '#ef4444' : (u.isHero ? '#a855f7' : '#3b82f6');
+                    const dotSize = Math.max(2, u.r * 2 * scale); // Đảm bảo chấm nhỏ nhất là 2px để có thể nhìn thấy
+                    rtsMinimapCtx.fillRect((u.x * scale) - dotSize/2, (u.y * scale) - dotSize/2, dotSize, dotSize);
+                }
             });
+
+            // THÊM MỚI: PHỦ SƯƠNG MÙ LÊN MINIMAP
+            if (rtsState.fow) {
+                const cols = rtsState.fow.length;
+                rtsMinimapCtx.fillStyle = '#000000';
+                for (let r = 0; r < cols; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const state = rtsState.fow[r][c];
+                        if (state === 0) {
+                            rtsMinimapCtx.globalAlpha = 1.0;
+                            rtsMinimapCtx.fillRect(c * 40 * scale, r * 40 * scale, 41 * scale, 41 * scale);
+                        } else if (state === 1) {
+                            rtsMinimapCtx.globalAlpha = 0.55;
+                            rtsMinimapCtx.fillRect(c * 40 * scale, r * 40 * scale, 41 * scale, 41 * scale);
+                        }
+                    }
+                }
+                rtsMinimapCtx.globalAlpha = 1.0;
+            }
 
             // 5. Vẽ Khung Camera (Viewport) để biết mình đang nhìn ở đâu
             const viewW = rtsCanvas.width / rtsState.camera.zoom;
