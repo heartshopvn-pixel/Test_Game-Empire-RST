@@ -621,14 +621,9 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-8px); }
         }
-        @keyframes battlePulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7), inset -4px -4px 0px 0px rgba(0,0,0,0.3); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0), inset -4px -4px 0px 0px rgba(0,0,0,0.3); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0), inset -4px -4px 0px 0px rgba(0,0,0,0.3); }
-        }
         .event-mail-btn {
             position: absolute;
-            bottom: 80px; /* Đẩy lên cao hơn thanh công trình */
+            bottom: 24px;
             right: 24px;
             background-color: var(--pixel-blue-light);
             border: 4px solid #000;
@@ -645,26 +640,7 @@
             animation: mailBounce 1.5s infinite ease-in-out;
             transition: transform 0.1s;
         }
-        .event-battle-btn {
-            position: absolute;
-            bottom: 80px; /* Đẩy lên cao hơn thanh công trình */
-            right: 96px; /* Nằm bên trái nút hộp thư */
-            background-color: var(--pixel-red);
-            border: 4px solid #000;
-            box-shadow: inset -4px -4px 0px 0px rgba(0,0,0,0.3);
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            cursor: pointer;
-            z-index: 50;
-            animation: battlePulse 1.5s infinite;
-            transition: transform 0.1s;
-        }
-        .event-mail-btn:active, .event-battle-btn:active { transform: scale(0.9) translateY(0); animation: none; box-shadow: inset 4px 4px 0px 0px rgba(0,0,0,0.3); }
+        .event-mail-btn:active { transform: scale(0.9) translateY(0); animation: none; box-shadow: inset 4px 4px 0px 0px rgba(0,0,0,0.3); }
         .event-badge {
             position: absolute;
             top: -4px;
@@ -678,27 +654,6 @@
             padding: 2px 6px;
             line-height: 1;
             box-shadow: 2px 2px 0px 0px rgba(0,0,0,0.5);
-        }
-
-        /* CSS cho Bảng thông báo khẩn */
-        .attack-alert-panel {
-            position: absolute;
-            top: 24px;
-            right: 24px;
-            background-color: rgba(0,0,0,0.85);
-            border: 3px solid var(--pixel-red);
-            padding: 12px 16px;
-            z-index: 60;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            box-shadow: 4px 4px 0px 0px rgba(0,0,0,0.5);
-            animation: floatDownFadeIn 0.3s ease-out;
-            max-width: 300px;
-        }
-        @keyframes floatDownFadeIn {
-            0% { opacity: 0; transform: translateY(-20px); }
-            100% { opacity: 1; transform: translateY(0); }
         }
 
         /* --- THÊM CSS CHO CHẾ ĐỘ RTS --- */
@@ -880,27 +835,10 @@
                 
                 <!-- THÊM MỚI: Nút hộp thư sự kiện -->
                 <div id="event-mail-container" class="hidden">
-                    <button onclick="openEventByType('aid')" class="event-mail-btn" data-sound="click" title="Bạn có thư mới!">
+                    <button onclick="openNextEvent()" class="event-mail-btn" data-sound="click" title="Bạn có thư mới!">
                         ✉️
                         <span id="event-count-badge" class="event-badge">1</span>
                     </button>
-                </div>
-
-                <!-- THÊM MỚI: Nút Cảnh báo Đột kích -->
-                <div id="event-battle-container" class="hidden">
-                    <button onclick="openEventByType('attack')" class="event-battle-btn" data-sound="click" title="Kẻ địch chuẩn bị tấn công!">
-                        ⚔️
-                        <span id="battle-count-badge" class="event-badge bg-black border-red-500">1</span>
-                    </button>
-                </div>
-
-                <!-- THÊM MỚI: Bảng thông báo khẩn góc trên -->
-                <div id="attack-alert-panel" class="attack-alert-panel hidden">
-                    <div class="flex justify-between items-start border-b border-red-800 pb-1">
-                        <span class="text-red-400 font-bold uppercase text-lg">⚠️ CẢNH BÁO KHẨN</span>
-                        <button onclick="closeAttackAlert()" class="text-gray-400 hover:text-white text-xl leading-none">&times;</button>
-                    </div>
-                    <span class="text-white text-sm">Tình báo cho biết có kẻ địch đang nhắm vào thành của chúng ta! Hãy kiểm tra biểu tượng ⚔️ góc dưới.</span>
                 </div>
 
                 <div class="building-bar shrink-0">
@@ -1357,14 +1295,6 @@
                 treeColors: ['#451a03', '#78350f', '#3e1104'],
                 resourcePool: ['gold', 'gold', 'gold', 'gold', 'stone', 'stone', 'food'],
                 spawnRules: { interval: 3, common: 0.1, rare: 0.3, legendary: 0.4, hell: 0.2 }
-            },
-            'base_defense': {
-                name: 'Thủ Thành',
-                colors: { bg: '#14532d', water: '#0ea5e9', path: '#d2b48c', waterMinimap: '#0369a1', pathMinimap: '#8b5a2b' },
-                decorations: ['grass', 'flower'],
-                treeColors: ['#064e3b', '#022c22', '#065f46', '#14532d'],
-                resourcePool: ['wood'], // Thủ thành toàn mỏ gỗ
-                spawnRules: { interval: 3, common: 0.6, rare: 0.3, legendary: 0.1, hell: 0 } 
             },
             'default': {
                 name: 'Vùng Đất Vô Danh',
@@ -2239,17 +2169,6 @@
         }
 
         function nextDay() {
-            // THÊM MỚI: Tự động xử lý (Bỏ qua) các sự kiện đột kích nếu người chơi chuyển ngày mà không giải quyết
-            if (GameState.pendingEvents && GameState.pendingEvents.length > 0) {
-                const attackEvents = GameState.pendingEvents.filter(e => e.type === 'attack');
-                if (attackEvents.length > 0) {
-                    attackEvents.forEach(ev => {
-                        resolveEvent(ev.id, false); // Tham số false = BỎ QUA -> Kích hoạt logic bị cướp bóc
-                    });
-                    closeAttackAlert(); // Tắt bảng cảnh báo khẩn nếu nó vẫn đang mở
-                }
-            }
-
             playSound('next_day'); // Thêm âm thanh gà gáy khi qua ngày
             const overlay = document.getElementById('night-overlay'); const btn = document.getElementById('next-day-trigger'); if (btn) btn.disabled = true; if (overlay) overlay.style.opacity = "1";
             setTimeout(() => { 
@@ -2278,157 +2197,77 @@
         // --- THÊM MỚI: CÁC HÀM XỬ LÝ SỰ KIỆN VƯƠNG QUỐC ---
         function generateRandomEvent() {
             const level = GameState.kingdom.level || 1;
+            const allyName = KINGDOM_NAMES[Math.floor(Math.random() * KINGDOM_NAMES.length)];
             
-            // Random tỷ lệ: 60% Viện trợ, 40% Bị tấn công
-            const isAttack = Math.random() < 0.4;
-
-            if (!isAttack) {
-                // SỰ KIỆN 1: VIỆN TRỢ
-                const allyName = KINGDOM_NAMES[Math.floor(Math.random() * KINGDOM_NAMES.length)];
-                const resTypes = ['food', 'wood', 'stone', 'gold'];
-                const resLoot = {};
-                const numRes = Math.floor(Math.random() * 3) + 1; 
-                
-                for(let i = 0; i < numRes; i++) {
-                    const rt = resTypes[Math.floor(Math.random() * resTypes.length)];
-                    const amount = Math.floor(Math.random() * 400 * level) + 100 * level;
-                    resLoot[rt] = (resLoot[rt] || 0) + amount;
-                }
-
-                let resText = [];
-                if(resLoot.food) resText.push(`🌾 Lương thực: <span class="text-green-400">+${formatNumber(resLoot.food)}</span>`);
-                if(resLoot.wood) resText.push(`🌲 Gỗ: <span class="text-green-400">+${formatNumber(resLoot.wood)}</span>`);
-                if(resLoot.stone) resText.push(`⛰️ Đá: <span class="text-green-400">+${formatNumber(resLoot.stone)}</span>`);
-                if(resLoot.gold) resText.push(`💰 Vàng: <span class="text-yellow-400">+${formatNumber(resLoot.gold)}</span>`);
-
-                GameState.pendingEvents.push({
-                    id: Date.now() + Math.random(),
-                    type: 'aid',
-                    title: 'Viện Trợ Đồng Minh',
-                    content: `Sứ giả từ vương quốc <b>${allyName}</b> đã đến!<br><br>Nhằm thắt chặt tình giao hữu, họ mang theo một xe hàng chở đầy tài nguyên để hỗ trợ công cuộc xây dựng của chúng ta:<br><br><div class="bg-black/50 p-2 inline-block border border-gray-600 mt-2 text-left">${resText.join('<br>')}</div><br><br>Ngài có muốn tiếp nhận số tài nguyên này không?`,
-                    data: resLoot
-                });
-            } else {
-                // SỰ KIỆN 2: KẺ ĐỊCH TẤN CÔNG
-                const enemyPool = ENEMY_CONFIG;
-                // Ưu tiên quái thường hoặc tinh anh cho event này
-                const enemy = enemyPool.find(e => e.quality === 'common') || enemyPool[0];
-                const count = Math.floor(Math.random() * 10 * level) + 5; // Số lượng quái scale theo level
-
-                GameState.pendingEvents.push({
-                    id: Date.now() + Math.random(),
-                    type: 'attack',
-                    title: 'Báo Cáo Đột Kích',
-                    content: `⚠️ <b>TÌNH BÁO KHẨN CẤP!</b> ⚠️<br><br>Một toán quân gồm <b><span class="text-red-400 text-xl">${count} ${enemy.name}</span></b> đang áp sát khu vực tường thành!<br><br>Nếu bỏ qua, chúng sẽ cướp bóc tài nguyên của vương quốc. Ngài có muốn phái quân ra ngăn chặn không?`,
-                    data: { enemy: enemy, count: count }
-                });
-
-                // Hiển thị Panel cảnh báo & Phát âm thanh Alert
-                document.getElementById('attack-alert-panel').classList.remove('hidden');
-                playSound('defeat'); // Âm thanh Alert.mp3
+            // Viện trợ tài nguyên (Tăng dần theo cấp vương quốc)
+            const resTypes = ['food', 'wood', 'stone', 'gold'];
+            const resLoot = {};
+            const numRes = Math.floor(Math.random() * 3) + 1; // Chọn 1 đến 3 loại tài nguyên ngẫu nhiên
+            
+            for(let i = 0; i < numRes; i++) {
+                const rt = resTypes[Math.floor(Math.random() * resTypes.length)];
+                // Số lượng random từ 100*lv đến 500*lv
+                const amount = Math.floor(Math.random() * 400 * level) + 100 * level;
+                resLoot[rt] = (resLoot[rt] || 0) + amount;
             }
-        }
 
-        function closeAttackAlert() {
-            document.getElementById('attack-alert-panel').classList.add('hidden');
+            let resText = [];
+            if(resLoot.food) resText.push(`🌾 Lương thực: <span class="text-green-400">+${formatNumber(resLoot.food)}</span>`);
+            if(resLoot.wood) resText.push(`🌲 Gỗ: <span class="text-green-400">+${formatNumber(resLoot.wood)}</span>`);
+            if(resLoot.stone) resText.push(`⛰️ Đá: <span class="text-green-400">+${formatNumber(resLoot.stone)}</span>`);
+            if(resLoot.gold) resText.push(`💰 Vàng: <span class="text-yellow-400">+${formatNumber(resLoot.gold)}</span>`);
+
+            GameState.pendingEvents.push({
+                id: Date.now() + Math.random(),
+                type: 'aid',
+                title: 'Viện Trợ Đồng Minh',
+                content: `Sứ giả từ vương quốc <b>${allyName}</b> đã đến!<br><br>Nhằm thắt chặt tình giao hữu, họ mang theo một xe hàng chở đầy tài nguyên để hỗ trợ công cuộc xây dựng của chúng ta:<br><br><div class="bg-black/50 p-2 inline-block border border-gray-600 mt-2 text-left">${resText.join('<br>')}</div><br><br>Ngài có muốn tiếp nhận số tài nguyên này không?`,
+                data: resLoot
+            });
         }
 
         function checkPendingEvents() {
-            const mailContainer = document.getElementById('event-mail-container');
-            const battleContainer = document.getElementById('event-battle-container');
+            const container = document.getElementById('event-mail-container');
+            const badge = document.getElementById('event-count-badge');
             if (!GameState.pendingEvents) GameState.pendingEvents = [];
             
-            let aidCount = 0;
-            let attackCount = 0;
-
-            GameState.pendingEvents.forEach(e => {
-                if (e.type === 'aid') aidCount++;
-                else if (e.type === 'attack') attackCount++;
-            });
-
-            // Xử lý icon Hộp thư
-            if (aidCount > 0) {
-                if(mailContainer) mailContainer.classList.remove('hidden');
-                document.getElementById('event-count-badge').innerText = aidCount;
+            if (GameState.pendingEvents.length > 0) {
+                if(container) container.classList.remove('hidden');
+                if(badge) badge.innerText = GameState.pendingEvents.length;
             } else {
-                if(mailContainer) mailContainer.classList.add('hidden');
-            }
-
-            // Xử lý icon Chiến đấu
-            if (attackCount > 0) {
-                if(battleContainer) battleContainer.classList.remove('hidden');
-                document.getElementById('battle-count-badge').innerText = attackCount;
-            } else {
-                if(battleContainer) battleContainer.classList.add('hidden');
+                if(container) container.classList.add('hidden');
             }
         }
 
-        // CẬP NHẬT: Thay thế openNextEvent thành openEventByType
-        function openEventByType(type) {
+        function openNextEvent() {
             if (!GameState.pendingEvents || GameState.pendingEvents.length === 0) return;
-            
-            // Tìm sự kiện đầu tiên khớp với type (aid hoặc attack)
-            const eventIndex = GameState.pendingEvents.findIndex(e => e.type === type);
-            if (eventIndex === -1) return;
-
-            const ev = GameState.pendingEvents[eventIndex];
+            const ev = GameState.pendingEvents[0]; // Lấy sự kiện đầu tiên trong hàng đợi
             
             document.getElementById('event-title').innerText = ev.title;
-            // Đổi màu title tùy loại event
-            document.getElementById('event-title').className = `text-2xl font-bold uppercase w-full ${type === 'attack' ? 'text-red-400' : 'text-blue-200'}`;
             document.getElementById('event-content').innerHTML = ev.content;
             
             const actions = document.getElementById('event-actions');
-            if (type === 'aid') {
-                actions.innerHTML = `
-                    <button onclick="resolveEvent('${ev.id}', false)" class="btn-pixel btn-gray flex-1">TỪ CHỐI</button>
-                    <button onclick="resolveEvent('${ev.id}', true)" class="btn-pixel btn-green flex-1" data-sound="victory">XÁC NHẬN</button>
-                `;
-            } else if (type === 'attack') {
-                actions.innerHTML = `
-                    <button onclick="resolveEvent('${ev.id}', false)" class="btn-pixel btn-gray flex-1">BỎ QUA</button>
-                    <button onclick="resolveEvent('${ev.id}', true)" class="btn-pixel btn-red flex-1" data-sound="click">NGĂN CHẶN ⚔️</button>
-                `;
-            }
+            actions.innerHTML = `
+                <button onclick="resolveEvent(false)" class="btn-pixel btn-gray flex-1">TỪ CHỐI</button>
+                <button onclick="resolveEvent(true)" class="btn-pixel btn-green flex-1" data-sound="victory">XÁC NHẬN</button>
+            `;
             
             document.getElementById('event-modal').classList.remove('hidden');
-            closeAttackAlert(); // Ẩn panel đi nếu user đã bấm vào nút xem chi tiết
         }
 
-        function resolveEvent(eventId, isAccepted) {
-            if (!GameState.pendingEvents) return;
-            const index = GameState.pendingEvents.findIndex(e => e.id == eventId);
-            if (index === -1) return;
-
-            const ev = GameState.pendingEvents.splice(index, 1)[0]; // Xóa khỏi hàng đợi và lấy ra
+        function resolveEvent(isAccepted) {
+            if (!GameState.pendingEvents || GameState.pendingEvents.length === 0) return;
+            const ev = GameState.pendingEvents.shift(); // Lấy ra và xóa khỏi mảng
             
-            if (ev.type === 'aid') {
-                if (isAccepted) {
-                    const loot = ev.data;
-                    if(loot.food) GameState.resources.food += loot.food;
-                    if(loot.wood) GameState.resources.wood += loot.wood;
-                    if(loot.stone) GameState.resources.stone += loot.stone;
-                    if(loot.gold) GameState.resources.gold += loot.gold;
-                    showToast("Đã tiếp nhận viện trợ!");
-                } else {
-                    showToast("Đã từ chối viện trợ.");
-                }
-            } else if (ev.type === 'attack') {
-                if (!isAccepted) {
-                    // Từ chối -> Bị cướp tài nguyên (mất 5% -> 15% random)
-                    const lossRatio = (Math.random() * 0.1) + 0.05; 
-                    const lostFood = Math.floor(GameState.resources.food * lossRatio);
-                    const lostGold = Math.floor(GameState.resources.gold * lossRatio);
-                    
-                    GameState.resources.food -= lostFood;
-                    GameState.resources.gold -= lostGold;
-                    
-                    playSound('defeat');
-                    showToast(`Kẻ địch đã cướp bóc! Mất ${formatNumber(lostFood)} Lương thực và ${formatNumber(lostGold)} Vàng!`);
-                } else {
-                    // Ngăn chặn -> Mở giao diện chọn quân (Campaign thủ thành)
-                    openDispatchModal('base_defense'); 
-                }
+            if (isAccepted && ev.type === 'aid') {
+                const loot = ev.data;
+                if(loot.food) GameState.resources.food += loot.food;
+                if(loot.wood) GameState.resources.wood += loot.wood;
+                if(loot.stone) GameState.resources.stone += loot.stone;
+                if(loot.gold) GameState.resources.gold += loot.gold;
+                showToast("Đã tiếp nhận viện trợ!");
+            } else if (!isAccepted) {
+                showToast("Đã từ chối viện trợ.");
             }
             
             document.getElementById('event-modal').classList.add('hidden');
@@ -3241,10 +3080,6 @@
             
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
-            // THÊM MỚI: Lắng nghe sự kiện xoay màn hình thiết bị để thay đổi lại kích thước Map
-            window.addEventListener('orientationchange', () => {
-                setTimeout(resizeCanvas, 200); // Đợi 200ms để trình duyệt cập nhật xong width/height mới
-            });
             
             // Khởi tạo State của màn chơi
             rtsState = {
@@ -3284,8 +3119,66 @@
 
             // CẬP NHẬT: Grid Size thành 40
             const GRID_SIZE = 40;
+            
+            // 1. NGẪU NHIÊN HÓA VỊ TRÍ CĂN CỨ (Nằm trong khoảng an toàn giữa bản đồ)
+            let baseGridX = Math.floor(Math.random() * 20) + 15; // Lưới từ 15 đến 35
+            let baseGridY = Math.floor(Math.random() * 20) + 15;
+            const centerSnapX = baseGridX * GRID_SIZE + (GRID_SIZE / 2); 
+            const centerSnapY = baseGridY * GRID_SIZE + (GRID_SIZE / 2);
 
-            // --- HÀM HỖ TRỢ ĐƯỢC KHAI BÁO CHUNG CHO MỌI MAP ---
+            const wallData = payload.buildings['wall'];
+            rtsState.base = {
+                type: 'base',
+                x: centerSnapX,
+                y: centerSnapY,
+                w: 120, h: 120, // Kích thước 3x3 ô (3 * 40 = 120)
+                hp: wallData.currentHp,
+                maxHp: wallData.maxStats.hp,
+                displayedHp: wallData.currentHp, 
+                color: '#5d4037',
+                icon: '🧱',
+                def: wallData.maxStats.def || 50 
+            };
+
+            // Đặt camera ở giữa Base
+            rtsState.camera.x = rtsState.base.x - (rtsCanvas.width / 2);
+            rtsState.camera.y = rtsState.base.y - (rtsCanvas.height / 2);
+
+            // 2. NGẪU NHIÊN HÓA SÔNG NGÒI TRƯỚC (Đúng 40px, Tự động né Căn cứ)
+            rtsState.rivers = [];
+            let isMainVertical = Math.random() < 0.5; // 50% ra sông dọc, 50% ra sông ngang
+            let mainRiverPos;
+            let attemptsRiver = 0;
+            do {
+                mainRiverPos = (Math.floor(Math.random() * 30) + 10) * GRID_SIZE; 
+                attemptsRiver++;
+            } while (Math.abs(mainRiverPos - (isMainVertical ? centerSnapX : centerSnapY)) < 150 && attemptsRiver < 50);
+            
+            if (isMainVertical) {
+                rtsState.rivers.push({ x: mainRiverPos, y: 0, w: 40, h: rtsState.mapSize }); // Sông chính dọc
+                let branchCount = 6 + Math.floor(Math.random() * 8);
+                for(let i=0; i<branchCount; i++) {
+                    let by = (Math.floor(Math.random() * 48) + 1) * GRID_SIZE; 
+                    if (Math.abs(by - centerSnapY) < 120) continue; // Nhánh né khu vực căn cứ
+                    let isLeft = Math.random() < 0.5;
+                    let bLen = (2 + Math.floor(Math.random() * 8)) * GRID_SIZE; 
+                    let bx = isLeft ? mainRiverPos - bLen : mainRiverPos + 40;
+                    rtsState.rivers.push({ x: bx, y: by, w: bLen, h: 40 });
+                }
+            } else {
+                rtsState.rivers.push({ x: 0, y: mainRiverPos, w: rtsState.mapSize, h: 40 }); // Sông chính ngang
+                let branchCount = 6 + Math.floor(Math.random() * 8);
+                for(let i=0; i<branchCount; i++) {
+                    let bx = (Math.floor(Math.random() * 48) + 1) * GRID_SIZE; 
+                    if (Math.abs(bx - centerSnapX) < 120) continue; // Nhánh né khu vực căn cứ
+                    let isTop = Math.random() < 0.5;
+                    let bLen = (2 + Math.floor(Math.random() * 8)) * GRID_SIZE;
+                    let by = isTop ? mainRiverPos - bLen : mainRiverPos + 40;
+                    rtsState.rivers.push({ x: bx, y: by, w: 40, h: bLen });
+                }
+            }
+
+            // Hàm hỗ trợ kiểm tra xem tọa độ có rơi vào nước không
             const isPointInWaterOnly = (tx, ty, margin = 10) => {
                 for (let r of rtsState.rivers) {
                     if (tx > r.x - margin && tx < r.x + r.w + margin && ty > r.y - margin && ty < r.y + r.h + margin) return true;
@@ -3293,6 +3186,129 @@
                 return false;
             };
 
+            // 3. NGẪU NHIÊN HÓA CÁC MỎ TÀI NGUYÊN (Giới hạn khoảng cách gần tường thành và TUYỆT ĐỐI KHÔNG mọc trên sông)
+            const nodeInfo = {
+                'food': { icon: '🌾', color: '#fef08a', name: 'Đồng Lúa' },
+                'wood': { icon: '🌲', color: '#4ade80', name: 'Rừng Cây' },
+                'stone': { icon: '⛰️', color: '#9ca3af', name: 'Mỏ Đá' },
+                'gold': { icon: '💰', color: '#facc15', name: 'Mỏ Vàng' }
+            };
+
+            // CẬP NHẬT: Đổi tên chiến dịch trên thanh UI động theo Biome
+            const titleEl = document.querySelector('.rts-ui-bar .text-yellow-400');
+            if (titleEl) titleEl.innerText = `Chiến Dịch: ${rtsState.biome.name}`;
+
+            // Phân bổ số lượng mỏ tài nguyên theo vùng dựa trên cấu hình Biome
+            let nodesToSpawn = rtsState.biome.resourcePool;
+            
+            rtsState.nodes = [];
+            for (let i = 0; i < nodesToSpawn.length; i++) {
+                let nodeType = nodesToSpawn[i];
+                let info = nodeInfo[nodeType];
+                
+                let nx, ny, dist, overlap, inWater;
+                let attempts = 0;
+                do {
+                    // Random rải đều trên lưới 5 đến 45
+                    nx = (Math.floor(Math.random() * 40) + 5) * GRID_SIZE + (GRID_SIZE / 2);
+                    ny = (Math.floor(Math.random() * 40) + 5) * GRID_SIZE + (GRID_SIZE / 2);
+                    dist = Math.hypot(nx - centerSnapX, ny - centerSnapY);
+                    
+                    // Khoảng cách tối thiểu giữa các mỏ với nhau (Giảm xuống 150px để dễ rải nhiều mỏ lúa hơn)
+                    overlap = rtsState.nodes.some(n => Math.hypot(n.x - nx, n.y - ny) < 150);
+                    
+                    // Khoảng cách an toàn né sông (tránh mọc mỏ lơ lửng trên nước hay sát mép cầu)
+                    inWater = isPointInWaterOnly(nx, ny, 60);
+                    
+                    attempts++;
+                // Phải cách xa Base ít nhất 300px, KHÔNG QUÁ 850px, không đè lên mỏ khác, và không ở dưới nước
+                } while ((dist < 300 || dist > 850 || overlap || inWater) && attempts < 200); 
+
+                // Nếu sau 200 lần thử vẫn có vị trí hợp lệ thì thêm vào (tránh treo trình duyệt nếu map quá chật)
+                if (attempts < 200) {
+                    rtsState.nodes.push({
+                        type: nodeType, x: nx, y: ny, icon: info.icon, amount: 200, color: info.color, name: info.name
+                    });
+                }
+            }
+
+            // 4. XÂY DỰNG ĐƯỜNG MÒN NGẪU NHIÊN (Không bắt buộc nối tới mỏ)
+            rtsState.paths = [];
+            rtsState.bridges = []; // THÊM DÒNG NÀY: Khởi tạo mảng bridges trước khi sử dụng
+            
+            function createPathRect(x1, y1, x2, y2, thickness) {
+                return {
+                    x: Math.min(x1, x2) - thickness/2,
+                    y: Math.min(y1, y2) - thickness/2,
+                    w: Math.abs(x1 - x2) + thickness,
+                    h: Math.abs(y1 - y2) + thickness
+                };
+            }
+
+            // Tạo 4-6 nhánh đường ngẫu nhiên xuất phát từ căn cứ
+            const numPaths = 4 + Math.floor(Math.random() * 3);
+            for (let i = 0; i < numPaths; i++) {
+                // Điểm bắt đầu từ căn cứ
+                let sX = Math.floor(rtsState.base.x / GRID_SIZE) * GRID_SIZE + 20;
+                let sY = Math.floor(rtsState.base.y / GRID_SIZE) * GRID_SIZE + 20;
+                
+                // Chọn 1 điểm đến ngẫu nhiên trên bản đồ (trong lưới 5 đến 45)
+                let eX = (Math.floor(Math.random() * 40) + 5) * GRID_SIZE + 20;
+                let eY = (Math.floor(Math.random() * 40) + 5) * GRID_SIZE + 20;
+                
+                // Vẽ đường hình chữ L nối tới điểm ngẫu nhiên
+                if (Math.random() < 0.5) {
+                    rtsState.paths.push(createPathRect(sX, sY, eX, sY, 40), createPathRect(eX, sY, eX, eY, 40));
+                } else {
+                    rtsState.paths.push(createPathRect(sX, sY, sX, eY, 40), createPathRect(sX, eY, eX, eY, 40));
+                }
+            }
+
+            // 5. XÂY CẦU TỰ ĐỘNG TẠI CÁC ĐIỂM GIAO CẮT ĐƯỜNG VÀ SÔNG
+            rtsState.paths.forEach(p => {
+                rtsState.rivers.forEach(r => {
+                    // Kiểm tra va chạm hộp (AABB)
+                    if (p.x < r.x + r.w && p.x + p.w > r.x && p.y < r.y + r.h && p.y + p.h > r.y) {
+                        let ix = Math.max(p.x, r.x);
+                        let iy = Math.max(p.y, r.y);
+                        let iw = Math.min(p.x + p.w, r.x + r.w) - ix;
+                        let ih = Math.min(p.y + p.h, r.y + r.h) - iy;
+                        
+                        // Sông 40px cắt Đường 40px -> Điểm giao cắt (Cầu) sẽ luôn là ô 40x40.
+                        // Hướng cầu: Nếu Sông dọc -> Cầu ngang. Nếu Sông ngang -> Cầu dọc.
+                        let bridgeType = r.w > r.h ? 'vertical' : 'horizontal'; 
+                        if (r.w === 40 && r.h === 40) bridgeType = p.w > p.h ? 'horizontal' : 'vertical'; // Góc giao chi tiết
+                        
+                        rtsState.bridges.push({ x: ix, y: iy, w: iw, h: ih, type: bridgeType });
+                    }
+                });
+            });
+
+            // CẬP NHẬT MỚI: ĐẢM BẢO LUÔN CÓ ÍT NHẤT 1 CẦU QUA SÔNG CHÍNH (Chống lỗi chia cắt map)
+            if (rtsState.rivers.length > 0) {
+                let mainRiver = rtsState.rivers[0];
+                let hasMainBridge = rtsState.bridges.some(b => 
+                    b.x < mainRiver.x + mainRiver.w && b.x + b.w > mainRiver.x && 
+                    b.y < mainRiver.y + mainRiver.h && b.y + b.h > mainRiver.y
+                );
+
+                // Nếu thuật toán ngẫu nhiên chưa tạo ra cầu nào cắt qua sông chính -> Xây dự phòng 1 cầu
+                if (!hasMainBridge) {
+                    if (isMainVertical) { // Sông dọc
+                        let bridgeY = Math.floor(centerSnapY / GRID_SIZE) * GRID_SIZE; // Dóng ngang hàng với Căn Cứ
+                        rtsState.bridges.push({ x: mainRiver.x, y: bridgeY, w: 40, h: 40, type: 'horizontal' });
+                        // Thêm 1 đoạn đường ngắn 2 bên cầu (Mỗi bên nhô ra 1 ô 40px)
+                        rtsState.paths.push(createPathRect(mainRiver.x - 20, bridgeY + 20, mainRiver.x + 60, bridgeY + 20, 40));
+                    } else { // Sông ngang
+                        let bridgeX = Math.floor(centerSnapX / GRID_SIZE) * GRID_SIZE; // Dóng dọc hàng với Căn Cứ
+                        rtsState.bridges.push({ x: bridgeX, y: mainRiver.y, w: 40, h: 40, type: 'vertical' });
+                        // Thêm 1 đoạn đường ngắn 2 bên cầu (Mỗi bên nhô ra 1 ô 40px)
+                        rtsState.paths.push(createPathRect(bridgeX + 20, mainRiver.y - 20, bridgeX + 20, mainRiver.y + 60, 40));
+                    }
+                }
+            }
+
+            // Hàm hỗ trợ: Kiểm tra xem 1 tọa độ có lỡ bị trùng vào Sông hoặc Đường không
             const isPointInWaterOrPath = (tx, ty, margin = 10) => {
                 for (let r of rtsState.rivers) {
                     if (tx > r.x - margin && tx < r.x + r.w + margin && ty > r.y - margin && ty < r.y + r.h + margin) return true;
@@ -3303,221 +3319,36 @@
                 return false;
             };
 
-            function createPathRect(x1, y1, x2, y2, thickness) {
-                return {
-                    x: Math.min(x1, x2) - thickness/2,
-                    y: Math.min(y1, y2) - thickness/2,
-                    w: Math.abs(x1 - x2) + thickness,
-                    h: Math.abs(y1 - y2) + thickness
-                };
+            // CẬP NHẬT: Trang trí vi mô (Hoa, nấm, cỏ li ti) rải ngẫu nhiên NHƯNG NÉ SÔNG VÀ ĐƯỜNG
+            rtsState.microDecorations = [];
+            for(let i=0; i<800; i++) { 
+                let tx = Math.random() * rtsState.mapSize;
+                let ty = Math.random() * rtsState.mapSize;
+                if (isPointInWaterOrPath(tx, ty, 5)) continue; // Nếu trùng sông hoặc đường thì bỏ qua không mọc
+                
+                // Chọn ngẫu nhiên 1 loại trang trí có trong danh sách của Biome
+                let allowedDecorations = rtsState.biome.decorations;
+                let type = allowedDecorations[Math.floor(Math.random() * allowedDecorations.length)];
+                let color = type === 'flower' ? ['#fde047', '#fca5a5', '#93c5fd', '#d8b4fe'][Math.floor(Math.random()*4)] : null;
+                rtsState.microDecorations.push({ x: tx, y: ty, type: type, color: color });
             }
 
-            let centerSnapX = 0;
-            let centerSnapY = 0;
-
-            if (payload.region === 'base_defense') {
-                // --- THIẾT KẾ MAP THỦ THÀNH NẰM SÁT TRÁI ---
-                centerSnapX = 80; // Cố định Căn cứ nằm cách lề trái 80px
-                centerSnapY = Math.floor(rtsState.mapSize / GRID_SIZE / 2) * GRID_SIZE + (GRID_SIZE / 2); // Chính giữa trục Y
-
-                const wallData = payload.buildings['wall'];
-                rtsState.base = {
-                    type: 'base', x: centerSnapX, y: centerSnapY, w: 120, h: 120,
-                    hp: wallData.currentHp, maxHp: wallData.maxStats.hp, displayedHp: wallData.currentHp, 
-                    color: '#5d4037', icon: '🧱', def: wallData.maxStats.def || 50 
-                };
-
-                // Đặt camera nhìn về bên trái
-                rtsState.camera.x = 0;
-                rtsState.camera.y = rtsState.base.y - (rtsCanvas.height / 2);
-
-                rtsState.rivers = []; rtsState.bridges = []; // Không có sông cản đường
-
-                // Vẽ 1 đường mòn lớn chạy thẳng từ trái qua phải
-                rtsState.paths = [{ x: 140, y: centerSnapY - 60, w: rtsState.mapSize - 140, h: 120 }];
-
-                // Mỏ tài nguyên: 100% Gỗ, rải rác nhưng né đường đi
-                rtsState.nodes = [];
-                for (let i = 0; i < 40; i++) {
-                    let nx = (Math.floor(Math.random() * 45) + 5) * GRID_SIZE + (GRID_SIZE / 2);
-                    let ny = (Math.floor(Math.random() * 48) + 1) * GRID_SIZE + (GRID_SIZE / 2);
-                    if (Math.abs(ny - centerSnapY) > 150 && nx > 150) { 
-                        rtsState.nodes.push({ type: 'wood', x: nx, y: ny, icon: '🌲', amount: 500, color: '#4ade80', name: 'Rừng Cây' });
-                    }
-                }
-
-                // Cây cối rậm rạp
-                rtsState.decorations = []; rtsState.microDecorations = [];
-                let treeColors = rtsState.biome.treeColors;
-                for(let i=0; i<600; i++) {
-                    let tx = Math.random() * rtsState.mapSize;
-                    let ty = Math.random() * rtsState.mapSize;
-                    if (Math.abs(ty - centerSnapY) > 90 && tx > 150) { 
-                        rtsState.decorations.push({ x: tx, y: ty, size: Math.random() * 15 + 20, color: treeColors[Math.floor(Math.random() * treeColors.length)] });
-                    }
-                    if (Math.random() < 0.3) rtsState.microDecorations.push({ x: tx, y: ty, type: 'grass', color: null });
-                }
-
-                // TRIỆU HỒI THÁP CUNG & THÁP SÚNG BẢO VỆ TƯỜNG THÀNH
-                const archerData = payload.buildings['archer_tower'];
-                if (archerData && archerData.level > 0 && archerData.currentHp > 0) {
-                    let t = createUnit('archer_tower', {name: 'Tháp Cung', icon: '🏹', id: 'archer_tower'}, false, archerData.maxStats, false, centerSnapX, centerSnapY - 110);
-                    t.hp = archerData.currentHp; t.maxHp = archerData.maxStats.hp; t.displayedHp = archerData.currentHp; 
-                    t.speed = 0; // Đóng băng tốc độ
-                    rtsState.units.push(t);
-                }
-                const musketData = payload.buildings['musket_tower'];
-                if (musketData && musketData.level > 0 && musketData.currentHp > 0) {
-                    let t = createUnit('musket_tower', {name: 'Tháp Súng', icon: '🔫', id: 'musket_tower'}, false, musketData.maxStats, false, centerSnapX, centerSnapY + 110);
-                    t.hp = musketData.currentHp; t.maxHp = musketData.maxStats.hp; t.displayedHp = musketData.currentHp; 
-                    t.speed = 0; // Đóng băng tốc độ
-                    rtsState.units.push(t);
-                }
-
-            } else {
-                // --- THIẾT KẾ BẢN ĐỒ THU THẬP BÌNH THƯỜNG ---
-                // 1. NGẪU NHIÊN HÓA VỊ TRÍ CĂN CỨ
-                let baseGridX = Math.floor(Math.random() * 20) + 15; // Lưới từ 15 đến 35
-                let baseGridY = Math.floor(Math.random() * 20) + 15;
-                centerSnapX = baseGridX * GRID_SIZE + (GRID_SIZE / 2); 
-                centerSnapY = baseGridY * GRID_SIZE + (GRID_SIZE / 2);
-
-                const wallData = payload.buildings['wall'];
-                rtsState.base = {
-                    type: 'base',
-                    x: centerSnapX, y: centerSnapY, w: 120, h: 120, 
-                    hp: wallData.currentHp, maxHp: wallData.maxStats.hp, displayedHp: wallData.currentHp, 
-                    color: '#5d4037', icon: '🧱', def: wallData.maxStats.def || 50 
-                };
-
-                // Đặt camera ở giữa Base
-                rtsState.camera.x = rtsState.base.x - (rtsCanvas.width / 2);
-                rtsState.camera.y = rtsState.base.y - (rtsCanvas.height / 2);
-
-                // 2. NGẪU NHIÊN HÓA SÔNG NGÒI
-                rtsState.rivers = [];
-                let isMainVertical = Math.random() < 0.5;
-                let mainRiverPos; let attemptsRiver = 0;
-                do {
-                    mainRiverPos = (Math.floor(Math.random() * 30) + 10) * GRID_SIZE; 
-                    attemptsRiver++;
-                } while (Math.abs(mainRiverPos - (isMainVertical ? centerSnapX : centerSnapY)) < 150 && attemptsRiver < 50);
+            // CẬP NHẬT: Tạo cây cối rải rác NHƯNG NÉ SÔNG VÀ ĐƯỜNG VÀ CĂN CỨ
+            rtsState.decorations = [];
+            let treeColors = rtsState.biome.treeColors || ['#14532d', '#166534', '#15803d', '#064e3b'];
+            for(let i=0; i<150; i++) {
+                let tx = Math.floor(Math.random() * (rtsState.mapSize / GRID_SIZE)) * GRID_SIZE + (GRID_SIZE / 2);
+                let ty = Math.floor(Math.random() * (rtsState.mapSize / GRID_SIZE)) * GRID_SIZE + (GRID_SIZE / 2);
                 
-                if (isMainVertical) {
-                    rtsState.rivers.push({ x: mainRiverPos, y: 0, w: 40, h: rtsState.mapSize }); 
-                    let branchCount = 6 + Math.floor(Math.random() * 8);
-                    for(let i=0; i<branchCount; i++) {
-                        let by = (Math.floor(Math.random() * 48) + 1) * GRID_SIZE; 
-                        if (Math.abs(by - centerSnapY) < 120) continue; 
-                        let isLeft = Math.random() < 0.5;
-                        let bLen = (2 + Math.floor(Math.random() * 8)) * GRID_SIZE; 
-                        let bx = isLeft ? mainRiverPos - bLen : mainRiverPos + 40;
-                        rtsState.rivers.push({ x: bx, y: by, w: bLen, h: 40 });
-                    }
-                } else {
-                    rtsState.rivers.push({ x: 0, y: mainRiverPos, w: rtsState.mapSize, h: 40 }); 
-                    let branchCount = 6 + Math.floor(Math.random() * 8);
-                    for(let i=0; i<branchCount; i++) {
-                        let bx = (Math.floor(Math.random() * 48) + 1) * GRID_SIZE; 
-                        if (Math.abs(bx - centerSnapX) < 120) continue; 
-                        let isTop = Math.random() < 0.5;
-                        let bLen = (2 + Math.floor(Math.random() * 8)) * GRID_SIZE;
-                        let by = isTop ? mainRiverPos - bLen : mainRiverPos + 40;
-                        rtsState.rivers.push({ x: bx, y: by, w: 40, h: bLen });
-                    }
-                }
-
-                // 3. NGẪU NHIÊN HÓA CÁC MỎ TÀI NGUYÊN
-                let nodesToSpawn = rtsState.biome.resourcePool;
-                rtsState.nodes = [];
-                for (let i = 0; i < nodesToSpawn.length; i++) {
-                    let nodeType = nodesToSpawn[i];
-                    let info = nodeInfo[nodeType];
-                    
-                    let nx, ny, dist, overlap, inWater;
-                    let attempts = 0;
-                    do {
-                        nx = (Math.floor(Math.random() * 40) + 5) * GRID_SIZE + (GRID_SIZE / 2);
-                        ny = (Math.floor(Math.random() * 40) + 5) * GRID_SIZE + (GRID_SIZE / 2);
-                        dist = Math.hypot(nx - centerSnapX, ny - centerSnapY);
-                        overlap = rtsState.nodes.some(n => Math.hypot(n.x - nx, n.y - ny) < 150);
-                        inWater = isPointInWaterOnly(nx, ny, 60);
-                        attempts++;
-                    } while ((dist < 300 || dist > 850 || overlap || inWater) && attempts < 200); 
-
-                    if (attempts < 200) {
-                        rtsState.nodes.push({ type: nodeType, x: nx, y: ny, icon: info.icon, amount: 200, color: info.color, name: info.name });
-                    }
-                }
-
-                // 4. XÂY DỰNG ĐƯỜNG MÒN
-                rtsState.paths = []; rtsState.bridges = []; 
-                const numPaths = 4 + Math.floor(Math.random() * 3);
-                for (let i = 0; i < numPaths; i++) {
-                    let sX = Math.floor(rtsState.base.x / GRID_SIZE) * GRID_SIZE + 20;
-                    let sY = Math.floor(rtsState.base.y / GRID_SIZE) * GRID_SIZE + 20;
-                    let eX = (Math.floor(Math.random() * 40) + 5) * GRID_SIZE + 20;
-                    let eY = (Math.floor(Math.random() * 40) + 5) * GRID_SIZE + 20;
-                    if (Math.random() < 0.5) {
-                        rtsState.paths.push(createPathRect(sX, sY, eX, sY, 40), createPathRect(eX, sY, eX, eY, 40));
-                    } else {
-                        rtsState.paths.push(createPathRect(sX, sY, sX, eY, 40), createPathRect(sX, eY, eX, eY, 40));
-                    }
-                }
-
-                // 5. XÂY CẦU TỰ ĐỘNG
-                rtsState.paths.forEach(p => {
-                    rtsState.rivers.forEach(r => {
-                        if (p.x < r.x + r.w && p.x + p.w > r.x && p.y < r.y + r.h && p.y + p.h > r.y) {
-                            let ix = Math.max(p.x, r.x); let iy = Math.max(p.y, r.y);
-                            let iw = Math.min(p.x + p.w, r.x + r.w) - ix; let ih = Math.min(p.y + p.h, r.y + r.h) - iy;
-                            let bridgeType = r.w > r.h ? 'vertical' : 'horizontal'; 
-                            if (r.w === 40 && r.h === 40) bridgeType = p.w > p.h ? 'horizontal' : 'vertical'; 
-                            rtsState.bridges.push({ x: ix, y: iy, w: iw, h: ih, type: bridgeType });
-                        }
+                // Không mọc cây gần Tường thành và không mọc đè lên sông/đường
+                if (Math.hypot(tx - rtsState.base.x, ty - rtsState.base.y) > 250 && !isPointInWaterOrPath(tx, ty, 20)) {
+                    rtsState.decorations.push({
+                        x: tx, y: ty,
+                        size: Math.random() * 10 + 15,
+                        color: treeColors[Math.floor(Math.random() * treeColors.length)]
                     });
-                });
-
-                if (rtsState.rivers.length > 0) {
-                    let mainRiver = rtsState.rivers[0];
-                    let hasMainBridge = rtsState.bridges.some(b => b.x < mainRiver.x + mainRiver.w && b.x + b.w > mainRiver.x && b.y < mainRiver.y + mainRiver.h && b.y + b.h > mainRiver.y);
-                    if (!hasMainBridge) {
-                        if (isMainVertical) { 
-                            let bridgeY = Math.floor(centerSnapY / GRID_SIZE) * GRID_SIZE; 
-                            rtsState.bridges.push({ x: mainRiver.x, y: bridgeY, w: 40, h: 40, type: 'horizontal' });
-                            rtsState.paths.push(createPathRect(mainRiver.x - 20, bridgeY + 20, mainRiver.x + 60, bridgeY + 20, 40));
-                        } else { 
-                            let bridgeX = Math.floor(centerSnapX / GRID_SIZE) * GRID_SIZE; 
-                            rtsState.bridges.push({ x: bridgeX, y: mainRiver.y, w: 40, h: 40, type: 'vertical' });
-                            rtsState.paths.push(createPathRect(bridgeX + 20, mainRiver.y - 20, bridgeX + 20, mainRiver.y + 60, 40));
-                        }
-                    }
                 }
-
-                rtsState.microDecorations = [];
-                let allowedDecorations = rtsState.biome.decorations;
-                for(let i=0; i<800; i++) { 
-                    let tx = Math.random() * rtsState.mapSize; let ty = Math.random() * rtsState.mapSize;
-                    if (isPointInWaterOrPath(tx, ty, 5)) continue; 
-                    let type = allowedDecorations[Math.floor(Math.random() * allowedDecorations.length)];
-                    let color = type === 'flower' ? ['#fde047', '#fca5a5', '#93c5fd', '#d8b4fe'][Math.floor(Math.random()*4)] : null;
-                    rtsState.microDecorations.push({ x: tx, y: ty, type: type, color: color });
-                }
-
-                rtsState.decorations = [];
-                let treeColors = rtsState.biome.treeColors || ['#14532d', '#166534', '#15803d', '#064e3b'];
-                for(let i=0; i<150; i++) {
-                    let tx = Math.floor(Math.random() * (rtsState.mapSize / GRID_SIZE)) * GRID_SIZE + (GRID_SIZE / 2);
-                    let ty = Math.floor(Math.random() * (rtsState.mapSize / GRID_SIZE)) * GRID_SIZE + (GRID_SIZE / 2);
-                    if (Math.hypot(tx - rtsState.base.x, ty - rtsState.base.y) > 250 && !isPointInWaterOrPath(tx, ty, 20)) {
-                        rtsState.decorations.push({ x: tx, y: ty, size: Math.random() * 10 + 15, color: treeColors[Math.floor(Math.random() * treeColors.length)] });
-                    }
-                }
-            } // Kết thúc nhánh thiết kế Map
-
-            // CẬP NHẬT: Đổi tên chiến dịch trên thanh UI động theo Biome
-            const titleEl = document.querySelector('.rts-ui-bar .text-yellow-400');
-            if (titleEl) titleEl.innerText = `Chiến Dịch: ${rtsState.biome.name}`;
+            }
 
             // Triệu hồi quân đội và anh hùng xung quanh base
             let spawnRadius = 100;
@@ -4236,46 +4067,22 @@
                 let rand = Math.random();
                 const rules = rtsState.biome.spawnRules;
                 
-                // TÙY CHỈNH SPAWN DỰA TRÊN CHẾ ĐỘ CHƠI
-                let spawnX, spawnY;
-                
-                if (rtsState.payload.region === 'base_defense') {
-                    // Logic Thủ Thành: Độ khó tăng theo cấp Vương quốc (Max level 30)
-                    const klvl = Math.min(30, GameState.kingdom.level || 1);
-                    
-                    // Càng cấp cao sinh quái càng nhanh (nhanh nhất 1.5s/con)
-                    rtsState.biome.spawnRules.interval = 4.0 - ((klvl - 1) / 29) * 2.5; 
-
-                    let legendaryChance = ((klvl - 1) / 29) * 0.35; 
-                    let rareChance = ((klvl - 1) / 29) * 0.45;      
-                    let commonChance = 1.0 - legendaryChance - rareChance;
-
-                    if (rand < commonChance) enemyCfg = enemyList.find(e => e.quality === 'common') || enemyList[0];
-                    else if (rand < commonChance + rareChance) enemyCfg = enemyList.find(e => e.quality === 'rare') || enemyList[0];
-                    else enemyCfg = enemyList.find(e => e.quality === 'legendary') || enemyList[0]; // Không có Địa Ngục
-
-                    // Sinh quái ở sát mép phải bản đồ, tập trung đi thẳng vào giữa
-                    spawnX = rtsState.mapSize - 50;
-                    spawnY = rtsState.base.y + (Math.random() * 160 - 80); // Rải rác theo trục Y để không dính vào nhau
-
+                // Chọn quái dựa trên tỷ lệ cấu hình
+                if (rand < rules.common) {
+                    enemyCfg = enemyList.find(e => e.quality === 'common') || enemyList[0];
+                } else if (rand < rules.common + rules.rare) {
+                    enemyCfg = enemyList.find(e => e.quality === 'rare') || enemyList[0];
+                } else if (rand < rules.common + rules.rare + rules.legendary) {
+                    enemyCfg = enemyList.find(e => e.quality === 'legendary') || enemyList[0];
                 } else {
-                    // Chế độ thu thập thường: Dựa trên tỷ lệ Biome
-                    if (rand < rules.common) {
-                        enemyCfg = enemyList.find(e => e.quality === 'common') || enemyList[0];
-                    } else if (rand < rules.common + rules.rare) {
-                        enemyCfg = enemyList.find(e => e.quality === 'rare') || enemyList[0];
-                    } else if (rand < rules.common + rules.rare + rules.legendary) {
-                        enemyCfg = enemyList.find(e => e.quality === 'legendary') || enemyList[0];
-                    } else {
-                        enemyCfg = enemyList.find(e => e.quality === 'hell') || enemyList[0];
-                    }
-                    
-                    // Kẻ địch sinh ra ngẫu nhiên xung quanh căn cứ
-                    let spawnAngle = Math.random() * Math.PI * 2;
-                    let spawnDistance = 250 + Math.random() * 100;
-                    spawnX = rtsState.base.x + Math.cos(spawnAngle) * spawnDistance;
-                    spawnY = rtsState.base.y + Math.sin(spawnAngle) * spawnDistance;
+                    enemyCfg = enemyList.find(e => e.quality === 'hell') || enemyList[0];
                 }
+                
+                // Cập nhật: Kẻ địch sinh ra ngẫu nhiên xung quanh căn cứ (bán kính 250 - 350px)
+                let spawnAngle = Math.random() * Math.PI * 2;
+                let spawnDistance = 250 + Math.random() * 100;
+                let spawnX = rtsState.base.x + Math.cos(spawnAngle) * spawnDistance;
+                let spawnY = rtsState.base.y + Math.sin(spawnAngle) * spawnDistance;
                 
                 let eUnit = createUnit('enemy', enemyCfg, false, enemyCfg.baseStats || enemyCfg.stats, true, spawnX, spawnY);
                 eUnit.icon = enemyCfg.icon; 
@@ -4709,10 +4516,8 @@
                     if (dist < minDist && dist > 0) {
                         let push = (minDist - dist) / 2;
                         let px = (dx / dist) * push; let py = (dy / dist) * push;
-                        
-                        // Đảm bảo Tháp canh (speed = 0) không bị đẩy lệch vị trí
-                        if (u1.speed > 0) { u1.x -= px; u1.y -= py; }
-                        if (u2.speed > 0) { u2.x += px; u2.y += py; }
+                        u1.x -= px; u1.y -= py;
+                        u2.x += px; u2.y += py;
                     }
                 }
 
@@ -5746,17 +5551,13 @@
             // TRẢ VỀ NHẠC NỀN CHÍNH
             playBGM('bgmMain');
 
-            // Tính sát thương nhận vào của các Tháp Canh (nếu có tham chiến)
-            let archerUnit = rtsState.units.find(u => u.id === 'archer_tower');
-            let musketUnit = rtsState.units.find(u => u.id === 'musket_tower');
-
             // Đóng gói kết quả từ rtsState
             const result = {
                 isWin: isWinForce || (rtsState.base.hp > 0 && rtsState.units.some(u => !u.isEnemy)),
                 buildingDamage: { 
                     wall: rtsState.base.maxHp - Math.max(0, rtsState.base.hp),
-                    archer_tower: archerUnit ? (archerUnit.maxHp - Math.max(0, archerUnit.hp)) : (isWinForce ? 0 : 50),
-                    musket_tower: musketUnit ? (musketUnit.maxHp - Math.max(0, musketUnit.hp)) : (isWinForce ? 0 : 50)
+                    archer_tower: isWinForce ? 0 : 50, // Giả lập tháp nhỏ nếu k dựng trên map rts
+                    musket_tower: isWinForce ? 0 : 50
                 },
                 resourcesLooted: rtsState.gathered,
                 troopsCasualties: rtsState.casualties.troops, 
@@ -5814,9 +5615,8 @@
         window.rtsEndGame = rtsEndGame; // Nút UI kết thúc
         window.upgradeResearch = upgradeResearch;
         
-        window.openEventByType = openEventByType; // CẬP NHẬT: Thay thế openNextEvent
+        window.openNextEvent = openNextEvent; // THÊM MỚI: Window expose cho Sự Kiện
         window.resolveEvent = resolveEvent;
-        window.closeAttackAlert = closeAttackAlert; // THÊM MỚI
         
         window.handleMinimapClick = handleMinimapClick; // Đăng ký sự kiện Click Minimap
         window.handleMinimapTouch = handleMinimapTouch; // Đăng ký sự kiện Chạm Minimap
